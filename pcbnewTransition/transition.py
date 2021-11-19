@@ -14,10 +14,10 @@ def getVersion():
         return 5, 0
 
 def boardGetProperties(self):
-    raise NotImplementedError("The API is gone in v6, should be back in a few months")
+    return {}
 
 def boardSetProperties(self, p):
-    raise NotImplementedError("The API is gone in v6, should be back in a few months")
+    pass
 
 def GetBoundingBox(self, includeText=True, includeInvisibleText=True):
     if not includeText and not includeInvisibleText:
@@ -26,21 +26,31 @@ def GetBoundingBox(self, includeText=True, includeInvisibleText=True):
         return self._GetBoundingBox()
     raise NotImplementedError("Incompatible v5 and v6 API")
 
-pcbnewVersion = getVersion()
+def getAuxOrigin(self):
+    return self.m_AuxOrigin
 
-def isV6(version=pcbnewVersion):
+def setAuxOrigin(self, o):
+    self.m_AuxOrigin = o
+
+def NewBoard(filename):
+    return pcbnew.BOARD()
+
+KICAD_VERSION = getVersion()
+
+def isV6(version=KICAD_VERSION):
     if version[0] == 5 and version[1] == 99:
         return True
     return version[0] == 6
 
-if not isV6(pcbnewVersion):
+if not isV6(KICAD_VERSION):
+    # Introduce new functions
+    pcbnew.NewBoard = NewBoard
+
     # Introduce type aliases
     pcbnew.PCB_SHAPE = pcbnew.DRAWSEGMENT
     pcbnew.FP_SHAPE = pcbnew.EDGE_MODULE
     pcbnew.PCB_TEXT = pcbnew.TEXTE_PCB
     pcbnew.FP_TEXT = pcbnew.TEXTE_MODULE
-    pcbnew.PCB_PLOT_PARAMS.SetSketchPadLineWidth = pcbnew.PCB_PLOT_PARAMS.SetLineWidth
-    pcbnew.PCB_TEXT.SetTextThickness = pcbnew.PCB_TEXT.SetThickness
     pcbnew.ZONE = pcbnew.ZONE_CONTAINER
     pcbnew.ZONES = pcbnew.ZONE_CONTAINERS
     pcbnew.DXF_UNITS_MILLIMETERS = pcbnew.DXF_PLOTTER.DXF_UNIT_MILLIMETERS
@@ -55,10 +65,26 @@ if not isV6(pcbnewVersion):
     # Add board properties
     pcbnew.BOARD.GetProperties = boardGetProperties
     pcbnew.BOARD.SetProperties = boardSetProperties
+    pcbnew.BOARD_DESIGN_SETTINGS.GetAuxOrigin = getAuxOrigin
+    pcbnew.BOARD_DESIGN_SETTINGS.SetAuxOrigin = setAuxOrigin
+
+    # NETINFO_ITEM
+    pcbnew.NETINFO_ITEM.GetNetCode = pcbnew.NETINFO_ITEM.GetNet
+
+    # PCB_SHAPE
+    pcbnew.PCB_SHAPE.GetArcAngle = pcbnew.DRAWSEGMENT.GetAngle
 
     # PLOTTING ENUMS
     pcbnew.PLOT_TEXT_MODE_STROKE = pcbnew.PLOTTEXTMODE_STROKE
     pcbnew.PLOT_TEXT_MODE_DEFAULT = pcbnew.PLOTTEXTMODE_DEFAULT
     pcbnew.PLOT_TEXT_MODE_NATIVE = pcbnew.PLOTTEXTMODE_NATIVE
     pcbnew.PLOT_TEXT_MODE_PHANTOM = pcbnew.PLOTTEXTMODE_PHANTOM
+
+    pcbnew.PCB_PLOT_PARAMS.SetSketchPadLineWidth = pcbnew.PCB_PLOT_PARAMS.SetLineWidth
+
+    # ZONE
+    pcbnew.ZONE.SetIsRuleArea = pcbnew.ZONE.SetIsKeepout
+
+    # PCB_TEXT
+    pcbnew.PCB_TEXT.SetTextThickness = pcbnew.PCB_TEXT.SetThickness
 

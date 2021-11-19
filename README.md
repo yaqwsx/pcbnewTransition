@@ -24,8 +24,8 @@ And then, use the API for KiCAD 6. In case you need to distinguish v5 and v6,
 you can:
 
 ```python
-from pcbnewTransition import pcbnewVersion, isV6
+from pcbnewTransition import KICAD_VERSION, isV6
 
-if isV6(pcbnewVersion):
+if isV6():
     # something...
 ```
