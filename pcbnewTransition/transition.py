@@ -42,13 +42,15 @@ def patchRotate(item):
             newRotate = lambda self, center, angle: originalRotate(self, center, angle.AsTenthsOfADegree())
             setattr(newRotate, "patched", True)
             item.Rotate = newRotate
-    if hasattr(item, "SetOrientation"):
+    # We have to ignore PCB_DIMs objects as the orientation has different meaning
+    if hasattr(item, "SetOrientation") and not hasattr(item, "GetUnitsMode"):
         originalSetOrientation = item.SetOrientation
         if not getattr(originalSetOrientation, "patched", False):
             newSetOrientation = lambda self, angle: originalSetOrientation(self, angle.AsTenthsOfADegree())
             setattr(newSetOrientation, "patched", True)
             item.SetOrientation = newSetOrientation
-    if hasattr(item, "GetOrientation"):
+    # We have to ignore PCB_DIMs objects as the orientation has different meaning
+    if hasattr(item, "GetOrientation") and not hasattr(item, "GetUnitsMode"):
         originalGetOrientation = item.GetOrientation
         if not getattr(originalGetOrientation, "patched", False):
             newGetOrientation = lambda self: pcbnew.EDA_ANGLE(originalGetOrientation(self), pcbnew.TENTHS_OF_A_DEGREE_T)
@@ -79,7 +81,7 @@ def isV7(version=KICAD_VERSION):
         return True
     return version[0] == 7
 
-if not isV6(KICAD_VERSION):
+if not isV6(KICAD_VERSION) and not isV7(KICAD_VERSION):
     # Introduce new functions
     pcbnew.NewBoard = NewBoard
 
