@@ -68,6 +68,17 @@ def patchRotate(item):
             newSetTextAngle = lambda self, angle: originalSetTextAngle(self, angle.AsTenthsOfADegree())
             setattr(newSetTextAngle, "patched", True)
             item.SetTextAngle = newSetTextAngle
+    if hasattr(item, "SetHatchOrientation"):
+        originalSetHatchOrientation = item.SetHatchOrientation
+        if not getattr(originalSetHatchOrientation, "patched", False):
+            newSetHatchOrientation = lambda self, angle: originalSetHatchOrientation(self, angle.AsTenthsOfADegree())
+            setattr(newSetHatchOrientation, "patched", True)
+            item.SetHatchOrientation = newSetHatchOrientation
+
+def pathGetItemDescription(item):
+    if hasattr(item, "GetSelectMenuText") and not hasattr(item, "GetItemDescription"):
+        setattr(item, "GetItemDescription", getattr(item, "GetSelectMenuText"))
+
 
 KICAD_VERSION = getVersion()
 
@@ -178,6 +189,10 @@ if not isV7(KICAD_VERSION):
                 end.value = start.value + self.GetArcAngle() / 10
         setattr(newCalcArcAngles, "patched", True)
         pcbnew.EDA_SHAPE.CalcArcAngles = newCalcArcAngles
+
+    # GetSelectMenuText
+    for x in dir(pcbnew):
+        pathGetItemDescription(getattr(pcbnew, x))
 
     # EDA_TEXT
     originalTextSize = pcbnew.EDA_TEXT.SetTextSize
