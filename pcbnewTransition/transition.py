@@ -84,6 +84,12 @@ def patchRotate(item):
             newSetHatchOrientation = lambda self, angle: originalSetHatchOrientation(self, angle.AsTenthsOfADegree())
             setattr(newSetHatchOrientation, "patched", True)
             item.SetHatchOrientation = newSetHatchOrientation
+    if hasattr(item, "SetArcAngleAndEnd"):
+        originalSetArcAngleAndEnd = item.SetArcAngleAndEnd
+        if not getattr(originalSetArcAngleAndEnd, "patched", False):
+            newSetArcAngleAndEnd = lambda self, angle, check_neg: originalSetArcAngleAndEnd(self, angle.AsTenthsOfADegree(), check_neg)
+            setattr(newSetArcAngleAndEnd, "patched", True)
+            item.SetArcAngleAndEnd = newSetArcAngleAndEnd
 
 def pathGetItemDescription(item):
     if hasattr(item, "GetSelectMenuText") and not hasattr(item, "GetItemDescription"):
