@@ -1,18 +1,5 @@
-# We need to ensure that:
-# - `import pcbnew` provides the original pcbnew module
-# - `from pcbnewTransition` import pcbnew import the patched module. Therefore,
-# we cannot patch the original module. Instead, we have to trick python to load
-# a module twice. Therefore, let's delete pcbnew from sys.modules, import it, patch it and delete from sys.modules
-import sys
-
-originalPcbnew = None
-try:
-    originalPcbnew = sys.modules["pcbnew"]
-    del sys.modules["pcbnew"]
-except KeyError:
-    pass
-
 from . import pcbnew
+import pcbnew as pcbnewOrig
 import types
 
 def getVersion():
@@ -220,12 +207,3 @@ if not isV7(KICAD_VERSION):
 
     originalSetSize = pcbnew.PAD.SetSize
     pcbnew.PAD.SetSize = lambda self, size: originalSetSize(self, pcbnew.wxSize(size[0], size[1]))
-
-# We need to ensure that the original pcbnew is not modified
-try:
-    del sys.modules["pcbnew"]
-    if originalPcbnew is not None:
-        sys.modules["pcbnew"] = originalPcbnew
-except KeyError:
-    pass
-
