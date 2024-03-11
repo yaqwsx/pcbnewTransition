@@ -1,7 +1,7 @@
 # Pcbnew Transition
 
-This library allows you to easily support all, KiCAD 7, 6 and 5 in your KiCAD
-plugins. It basically monkeypatches KiCAD Python module, so it matches KiCAD 7
+This library allows you to easily support KiCAD 8, 7 and 6 in your KiCAD
+plugins. It basically monkeypatches KiCAD Python module, so it matches KiCAD 8
 API.
 ## Usage
 
