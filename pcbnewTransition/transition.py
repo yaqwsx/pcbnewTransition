@@ -1,19 +1,12 @@
-# We need to ensure that:
-# - `import pcbnew` provides the original pcbnew module
-# - `from pcbnewTransition` import pcbnew import the patched module. Therefore,
-# we cannot patch the original module. Instead, we have to trick python to load
-# a module twice. Therefore, let's delete pcbnew from sys.modules, import it, patch it and delete from sys.modules
 import sys
 
 originalPcbnew = None
 try:
     originalPcbnew = sys.modules["pcbnew"]
-    del sys.modules["pcbnew"]
 except KeyError:
     pass
 
-from . import pcbnew
-import types
+import pcbnew
 
 def getVersion():
     try:
@@ -22,6 +15,33 @@ def getVersion():
     except AttributeError:
         # KiCAD 5 does not have such function, assume it version 5.something
         return 5, 0
+
+KICAD_VERSION = getVersion()
+
+def isV6(version=KICAD_VERSION):
+    if version[0] == 5 and version[1] == 99:
+        return True
+    return version[0] == 6
+
+def isV7(version=KICAD_VERSION):
+    if version[0] == 6 and version[1] == 99:
+        return True
+    return version[0] == 7
+
+def isV8(version=KICAD_VERSION):
+    if version[0] == 7 and version[1] == 99:
+        return True
+    return version[0] == 8
+
+if isV6(KICAD_VERSION):
+    # There are big breaking changes between 6 -> 7.
+    # We need to ensure that:
+    # - `import pcbnew` provides the original pcbnew module
+    # - `from pcbnewTransition` import pcbnew import the patched module. Therefore,
+    # we cannot patch the original module. Instead, we have to trick python to load
+    # a module twice. Therefore, let's delete pcbnew from sys.modules, import it, patch it and delete from sys.modules
+    del sys.modules["pcbnew"]
+    from . import pcbnew
 
 def boardGetProperties(self):
     return {}
@@ -94,24 +114,6 @@ def patchRotate(item):
 def pathGetItemDescription(item):
     if hasattr(item, "GetSelectMenuText") and not hasattr(item, "GetItemDescription"):
         setattr(item, "GetItemDescription", getattr(item, "GetSelectMenuText"))
-
-
-KICAD_VERSION = getVersion()
-
-def isV6(version=KICAD_VERSION):
-    if version[0] == 5 and version[1] == 99:
-        return True
-    return version[0] == 6
-
-def isV7(version=KICAD_VERSION):
-    if version[0] == 6 and version[1] == 99:
-        return True
-    return version[0] == 7
-
-def isV8(version=KICAD_VERSION):
-    if version[0] == 7 and version[1] == 99:
-        return True
-    return version[0] == 8
 
 if not isV6(KICAD_VERSION) and not isV7(KICAD_VERSION) and not isV8(KICAD_VERSION):
     # Introduce new functions
@@ -230,11 +232,12 @@ if not isV7(KICAD_VERSION) and not isV8(KICAD_VERSION):
 # let's export them as new types:
 pcbnew.FIELD_TYPE = pcbnew.PCB_FIELD if isV8() else pcbnew.FP_TEXT
 
-# We need to ensure that the original pcbnew is not modified
-try:
-    del sys.modules["pcbnew"]
-    if originalPcbnew is not None:
-        sys.modules["pcbnew"] = originalPcbnew
-except KeyError:
-    pass
+if isV6():
+    # We need to ensure that the original pcbnew is not modified
+    try:
+        del sys.modules["pcbnew"]
+        if originalPcbnew is not None:
+            sys.modules["pcbnew"] = originalPcbnew
+    except KeyError:
+        pass
 
