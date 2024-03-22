@@ -92,6 +92,12 @@ def patchRotate(item):
             newGetDrawRotation = lambda self: pcbnew.EDA_ANGLE(originalGetDrawRotation(self), pcbnew.TENTHS_OF_A_DEGREE_T)
             setattr(newGetDrawRotation, "patched", True)
             item.GetDrawRotation = newGetDrawRotation
+    if hasattr(item, "GetTextAngle"):
+        originalGetTextAngle = item.GetTextAngle
+        if not getattr(originalGetTextAngle, "patched", False):
+            newGetTextAngle = lambda self: pcbnew.EDA_ANGLE(originalGetTextAngle(self), pcbnew.TENTHS_OF_A_DEGREE_T)
+            setattr(newGetTextAngle, "patched", True)
+            item.GetTextAngle = newGetTextAngle
     if hasattr(item, "SetTextAngle"):
         originalSetTextAngle = item.SetTextAngle
         if not getattr(originalSetTextAngle, "patched", False):
