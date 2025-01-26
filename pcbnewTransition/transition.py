@@ -18,6 +18,9 @@ def getVersion():
 
 KICAD_VERSION = getVersion()
 
+def kicad_major(version=KICAD_VERSION):
+    return version[0]
+
 def isV6(version=KICAD_VERSION):
     if version[0] == 5 and version[1] == 99:
         return True
@@ -32,6 +35,11 @@ def isV8(version=KICAD_VERSION):
     if version[0] == 7 and version[1] == 99:
         return True
     return version[0] == 8
+
+def isV9(version=KICAD_VERSION):
+    if version[0] == 8 and version[1] == 99:
+        return True
+    return version[0] == 9
 
 if isV6(KICAD_VERSION):
     # There are big breaking changes between 6 -> 7.
@@ -121,7 +129,7 @@ def pathGetItemDescription(item):
     if hasattr(item, "GetSelectMenuText") and not hasattr(item, "GetItemDescription"):
         setattr(item, "GetItemDescription", getattr(item, "GetSelectMenuText"))
 
-if not isV6(KICAD_VERSION) and not isV7(KICAD_VERSION) and not isV8(KICAD_VERSION):
+if kicad_major() < 6:
     # Introduce new functions
     pcbnew.NewBoard = NewBoard
 
@@ -177,7 +185,7 @@ except ImportError:
     pcbnew.RADIANS_T = EDA_ANGLE_T.RADIANS_T
     pcbnew.TENTHS_OF_A_DEGREE_T = EDA_ANGLE_T.TENTHS_OF_A_DEGREE_T
 
-if not isV7(KICAD_VERSION) and not isV8(KICAD_VERSION):
+if kicad_major() < 7:
     # VECTOR2I & wxPoint
     class _transition_VECTOR2I(pcbnew.wxPoint):
         def __init__(self, *args, **kwargs):
@@ -236,7 +244,7 @@ if not isV7(KICAD_VERSION) and not isV8(KICAD_VERSION):
 
 # There are some incompatibilites that cannot be monkeypatched in a right way;
 # let's export them as new types:
-pcbnew.FIELD_TYPE = pcbnew.PCB_FIELD if isV8() else pcbnew.FP_TEXT
+pcbnew.FIELD_TYPE = pcbnew.PCB_FIELD if kicad_major() >= 8 else pcbnew.FP_TEXT
 
 if isV6():
     # We need to ensure that the original pcbnew is not modified
