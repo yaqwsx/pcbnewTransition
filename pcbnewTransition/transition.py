@@ -246,6 +246,15 @@ if kicad_major() < 7:
 # let's export them as new types:
 pcbnew.FIELD_TYPE = pcbnew.PCB_FIELD if kicad_major() >= 8 else pcbnew.FP_TEXT
 
+# The name of units enum has changed from a long name to a short one
+try:
+    pcbnew.EDA_UNITS_INCH = pcbnew.EDA_UNITS_INCHES
+    pcbnew.EDA_UNITS_MM = pcbnew.EDA_UNITS_MILLIMETRES
+    pcbnew.EDA_UNITS_UM = pcbnew.EDA_UNITS_MICROMETRES
+    pcbnew.EDA_UNITS_CM = pcbnew.EDA_UNITS_CENTIMETRES
+except:
+    pass
+
 if isV6():
     # We need to ensure that the original pcbnew is not modified
     try:
