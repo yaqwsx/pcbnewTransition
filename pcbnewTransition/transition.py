@@ -252,6 +252,12 @@ try:
     pcbnew.EDA_UNITS_MM = pcbnew.EDA_UNITS_MILLIMETRES
     pcbnew.EDA_UNITS_UM = pcbnew.EDA_UNITS_MICROMETRES
     pcbnew.EDA_UNITS_CM = pcbnew.EDA_UNITS_CENTIMETRES
+
+    pcbnew.DXF_UNITS_MM = pcbnew.DXF_UNITS_MILLIMETERS
+    pcbnew.DXF_UNITS_INCH = pcbnew.DXF_UNITS_INCHES
+
+    pcbnew.DIM_UNITS_MODE_MM = pcbnew.DIM_UNITS_MODE_MILLIMETRES
+    pcbnew.DIM_UNITS_MODE_INCH = pcbnew.DIM_UNITS_MODE_INCHES
 except:
     pass
 
